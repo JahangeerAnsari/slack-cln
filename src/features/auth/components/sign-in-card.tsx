@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { BsGithub } from "react-icons/bs";
 import { FcGoogle } from "react-icons/fc";
 import { AuthTypes } from "../types";
@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import { signInFormSchema } from "../schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { GoAlert } from "react-icons/go";
 import {
   Form,
   FormControl,
@@ -25,11 +26,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useState } from "react";
 
 interface SignInCardProps {
   setAuthState: (authState: AuthTypes) => void;
 }
 export const SignInCard = ({ setAuthState }: SignInCardProps) => {
+  const { signIn } = useAuthActions();
+  const [isPending,setIsPending] = useState(false);
+  const[error, setError] = useState("")
+  const handleProviderSignIn = (value: "github" | "google") =>{
+    setIsPending(true)
+    signIn(value).finally(() =>{
+      setIsPending(false)
+    })
+  }
   const form = useForm<z.infer<typeof signInFormSchema>>({
     defaultValues: {
       email: "",
@@ -37,8 +48,19 @@ export const SignInCard = ({ setAuthState }: SignInCardProps) => {
     },
     resolver: zodResolver(signInFormSchema),
   });
+
   const handleSignInForm = (values:z.infer<typeof signInFormSchema>) => {
-    console.log("values==========>", values);
+     setIsPending(true);
+   signIn("password",{
+      email:values.email,
+      password:values.password,
+      flow:"signIn"
+    }).catch(() =>{
+      setError("Invalid Email or Password")
+    }).finally(()=>{
+ setIsPending(false)
+    })
+   
     
   };
   return (
@@ -54,6 +76,12 @@ export const SignInCard = ({ setAuthState }: SignInCardProps) => {
           </Button>
         </CardAction>
       </CardHeader>
+      {!!error && (
+        <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm">
+           <GoAlert/>
+           <p>{error}</p>
+        </div>
+      )}
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSignInForm)}>
@@ -66,7 +94,7 @@ export const SignInCard = ({ setAuthState }: SignInCardProps) => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} />
+                        <Input type="email" disabled={isPending} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -89,7 +117,7 @@ export const SignInCard = ({ setAuthState }: SignInCardProps) => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input type="password" disabled={isPending} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -97,7 +125,7 @@ export const SignInCard = ({ setAuthState }: SignInCardProps) => {
                 />
               </div>
               <div className="grid gap-3">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full" disabled={isPending}>
                   Login
                 </Button>
               </div>
@@ -106,11 +134,11 @@ export const SignInCard = ({ setAuthState }: SignInCardProps) => {
         </Form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" disabled={isPending}>
           <FcGoogle />
           Login with Google
         </Button>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" onClick={() =>handleProviderSignIn("github")} disabled={isPending}>
           <BsGithub />
           Login with Github
         </Button>
