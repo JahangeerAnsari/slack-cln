@@ -50,8 +50,10 @@ export const WorkspaceSwitcher = () => {
         </DropdownMenuItem>
          {filteredWorkspaces?.map((item) => (
             <DropdownMenuItem
-             className="cursor-pointer capitalize"
-            key={item?._id} onClick={() =>router.push(`/workspace/${item?._id}`)}>{item.name}</DropdownMenuItem>
+             className="cursor-pointer capitalize overflow-hidden"
+            key={item?._id} onClick={() =>router.push(`/workspace/${item?._id}`)}>
+                <p className="truncate">{item.name}</p>
+            </DropdownMenuItem>
           ))}
           <DropdownMenuItem onClick={() =>onOpen("createWorkspace")}>
             <div className="size-9 relative overflow-hidden bg-[#F2F2F2] text-slate-800 text-lg font-semibold rounded-md
