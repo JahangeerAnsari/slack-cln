@@ -7,7 +7,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "@auth/core/types";
 import { useCurrentUser } from "./use-current-user";
 import { Loader2, LogOut } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -21,7 +20,7 @@ export const UserButton = () => {
   if (!data) {
     return null;
   }
-  const { name, image, email } = data;
+  const { name, image } = data;
   const fallBackImage = name?.charAt(0).toUpperCase();
   return (
     <DropdownMenu modal={false}>
@@ -34,9 +33,8 @@ export const UserButton = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" side="right" className="w-60">
-        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()} className="h-8">
-          <LogOut className="size-5 mr-3" />
+          <LogOut className="size-5 mr-3" />Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
