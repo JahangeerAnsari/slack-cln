@@ -70,7 +70,7 @@ export const PreferencesModal = ({
   }
   return (
     <>
-    <ConfirmDialog/>
+    {/* <ConfirmDialog/> */}
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="p-0 bg-gray-50 overflow-hidden">
         <DialogHeader className="p-4 border-b bg-white">
