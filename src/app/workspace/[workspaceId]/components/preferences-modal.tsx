@@ -11,9 +11,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useDeleteWorkspace } from "@/features/workspaces/api/use-delete-workspace";
 import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace copy";
+import { useConfirmation } from "@/hooks/use-confirmation";
 
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-
 import { TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -29,6 +29,7 @@ export const PreferencesModal = ({
   setOpen,
 }: PreferencesModalProps) => {
   const [value, setValue] = useState(initialValue);
+  const [ConfirmDialog, confirm] =useConfirmation("Are you sure?","This action is cannot be change.")
   const router = useRouter()
   const workspaceId = useWorkspaceId()
   const {mutate:updateWorkspace, isPending:isUpdateWorkspacePending} =useUpdateWorkspace();
@@ -50,9 +51,12 @@ export const PreferencesModal = ({
       })
 
   }
-  const handleDeleteWorkspace = () =>{ 
+  const handleDeleteWorkspace = async () =>{ 
+    // confirmation modal
+    // const ok = await confirm();
+    //  if(!ok) return;
     deleteWorkspace({
-      id:workspaceId
+      id:workspaceId 
     },{
       onSuccess:() =>{
         toast.success('Workspace deleted');
@@ -65,6 +69,8 @@ export const PreferencesModal = ({
 )
   }
   return (
+    <>
+    <ConfirmDialog/>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="p-0 bg-gray-50 overflow-hidden">
         <DialogHeader className="p-4 border-b bg-white">
@@ -115,5 +121,7 @@ export const PreferencesModal = ({
         </div>
       </DialogContent>
     </Dialog>
+    </>
+    
   );
 };
