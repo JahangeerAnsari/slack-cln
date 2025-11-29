@@ -1,1 +1,1 @@
-export type ModalTypes = "createWorkspace" | "editWorkspaces";
+export type ModalTypes = "createWorkspace" | "editWorkspaces" | "createChannel";
