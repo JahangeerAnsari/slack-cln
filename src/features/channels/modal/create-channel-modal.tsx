@@ -22,7 +22,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner"
 import { useChannelStore } from "../store/use-channel-store";
 import { createChannelSchema } from "../schema";
+import { useState } from "react";
 export const ChannelModal = () => {
+ const[name, setName] = useState("");
+ const handleNameChange = (e:React.ChangeEvent<HTMLInputElement>) =>{
+  const value = e.target.value.replace(/\s+/g,"-").toLowerCase();
+  setName(value)
+ }
   const router = useRouter()
   const { isOpen, onClose, type } = useChannelStore();
   const isModalOpen = isOpen && type === "createChannel";
@@ -65,11 +71,15 @@ export const ChannelModal = () => {
             >
               <FormField
                 name="name"
+                
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="Channel name e.g. 'Plan' 'Budget'" {...field}  disabled={false}/>
+                      <Input placeholder="Channel name e.g. 'Plan' 'Budget'" {...field} 
+                       value={name}
+                       onChange={handleNameChange}
+                      disabled={false}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
