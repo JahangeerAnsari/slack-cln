@@ -29,6 +29,8 @@ export const WorkspaceSidebar = () => {
   const { data: channels, isLoading: isChannelLoading } = useGetChannels({
     workspaceId,
   });
+  console.log("channels===>",channels);
+  
   const { data: members, isLoading: isMembersLoading } = useGetMembers({
     workspaceId,
   });
