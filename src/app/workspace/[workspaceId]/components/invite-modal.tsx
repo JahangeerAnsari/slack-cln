@@ -16,12 +16,17 @@ import { toast } from "sonner";
 import { RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUpdateJoinCode } from "@/features/workspaces/api/use-update-joincode";
+import { useConfirm } from "@/hooks/use-confirmation";
 interface InvitePeopleProps{
   name:string;
   joinCode:string;
 }
 export const InviteModal = ({joinCode,name}:InvitePeopleProps) => {
   const workspaceId = useWorkspaceId();
+  const [ConfirmDialog, confirm] = useConfirm(
+    "Are you Sure?",
+    "This action will deactivate your current invite code and generate a new invite code"
+  )
   const { isOpen, onClose, type } = useInviteStore();
   const isModalOpen = isOpen && type === "invitePeople";
  const {mutate,isPending} = useUpdateJoinCode()
@@ -33,7 +38,9 @@ export const InviteModal = ({joinCode,name}:InvitePeopleProps) => {
     window.navigator.clipboard
     .writeText(inviteLink).then(() => toast.success("Invite link copy from clipboard"))
   }
-   const handleGenerateNewCode = () =>{
+   const handleGenerateNewCode =async () =>{
+    const okay =  await confirm();
+     if(!okay)return;
      mutate({
       workspaceId:workspaceId
      },{
@@ -46,7 +53,9 @@ export const InviteModal = ({joinCode,name}:InvitePeopleProps) => {
    }
  
   return (
-    <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
+    <>
+    <ConfirmDialog/>
+     <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="space-y-2">Invite People to the {name} Workspace</DialogTitle>
@@ -80,5 +89,8 @@ export const InviteModal = ({joinCode,name}:InvitePeopleProps) => {
         
       </DialogContent>
     </Dialog>
+    
+    </>
+   
   );
 };
