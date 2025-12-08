@@ -53,6 +53,7 @@ export const ChannelModal = () => {
           // router.push(`/channel/${data}`);
           handleCloseModal();
           toast.success("Channel Created!");
+          form.reset()
         },
         onError: () => {
           toast.error("Something went wrong while creating channel");
