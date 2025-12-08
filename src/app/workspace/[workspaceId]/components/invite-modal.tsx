@@ -24,7 +24,7 @@ export const InviteModal = ({joinCode,name}:InvitePeopleProps) => {
   const workspaceId = useWorkspaceId();
   const { isOpen, onClose, type } = useInviteStore();
   const isModalOpen = isOpen && type === "invitePeople";
- const {mutate,isPending,} = useUpdateJoinCode()
+ const {mutate,isPending} = useUpdateJoinCode()
   const handleCloseModal = () => {
     onClose();
   };
@@ -64,7 +64,7 @@ export const InviteModal = ({joinCode,name}:InvitePeopleProps) => {
         </div>
          <DialogFooter>
              <div className="flex  w-full mr-5">
-         <Button variant="default"  size="default" onClick={handleGenerateNewCode}>
+         <Button disabled={isPending} variant="default"  size="default" onClick={handleGenerateNewCode}>
            New Code
            <RefreshCcw className="size-4 ml-2"/>
          </Button>
