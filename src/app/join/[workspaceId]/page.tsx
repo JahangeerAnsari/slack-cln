@@ -7,6 +7,7 @@ import { Loader } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 import VerificationInput from "react-verification-input";
 import { toast } from "sonner";
 interface JoinCodeProps{
@@ -18,7 +19,15 @@ const WorkspaceJoinPage = () => {
     const workspaceId = useWorkspaceId()
     const router = useRouter()
     const {mutate:joinWorkspace, isPending:isJoinPending} = useJoinCode();
-    const {data,isLoading} =useGetWorkspaceInfo({id:workspaceId})
+    const {data,isLoading} =useGetWorkspaceInfo({id:workspaceId});
+
+    const isMember = useMemo(() =>data?.isMember,[data?.isMember]);
+    //if user is already member of existing workspace redirect to the workspace/workspaceId page
+    useEffect(() =>{
+        if(isMember){
+            router.push(`/workspace/${workspaceId}`)
+        }
+    },[isMember, router, workspaceId])
       const handleJoinWorkspace = (value:string) =>{
         joinWorkspace({joinCode:value,workspaceId:workspaceId},{
             onSuccess:(id) =>{
