@@ -45,7 +45,7 @@ export const InviteModal = ({joinCode,name}:InvitePeopleProps) => {
       workspaceId:workspaceId
      },{
       onSuccess:() =>{
-        toast.success("Invite link copied")
+        toast.success("Invite link Regenerated!")
       }, onError:() =>{
         toast.error('Error while copied invite link')
       }
