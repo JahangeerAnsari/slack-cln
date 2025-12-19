@@ -83,6 +83,29 @@ export const getById = query({
     return await ctx.db.get(args.id);
   },
 });
+export const getWorkspaceInfo = query({
+  args:{
+    id:v.id("workspaces")
+  },
+  handler: async(ctx,args) =>{
+    const userId = await auth.getUserId(ctx);
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+     const member = await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("workspaceId", args.id).eq("userId", userId)
+      )
+      .unique();
+  const workspace = await ctx.db.get(args.id);
+  return {
+    name:workspace?.name,
+    isMember :!!member
+  }
+
+  }
+})
 export const join = mutation({
   args:{
     joinCode:v.string(),
