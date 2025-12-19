@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useDeleteWorkspace } from "@/features/workspaces/api/use-delete-workspace";
-import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace copy";
+import { useUpdateWorkspace } from "@/features/workspaces/api/use-update-workspace";
 import { useConfirm } from "@/hooks/use-confirmation";
 
 

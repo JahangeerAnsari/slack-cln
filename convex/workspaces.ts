@@ -83,7 +83,7 @@ export const getById = query({
     return await ctx.db.get(args.id);
   },
 });
-const join = mutation({
+export const join = mutation({
   args:{
     joinCode:v.string(),
     workspaceId:v.id("workspaces")
@@ -115,6 +115,7 @@ const join = mutation({
         workspaceId:workspace._id,
         role:"member"
       })
+       return workspace._id
   }
 })
 // update workspace
