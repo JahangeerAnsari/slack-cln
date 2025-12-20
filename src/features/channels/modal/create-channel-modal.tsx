@@ -28,10 +28,10 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 export const ChannelModal = () => {
   const router = useRouter();
   const { isOpen, onClose, type } = useChannelStore();
+   const workspaceId = useWorkspaceId();
   const isModalOpen = isOpen && type === "createChannel";
-
   const { isPending, mutate } = useCreateChannel();
-  const workspaceId = useWorkspaceId();
+ 
 
   const form = useForm<z.infer<typeof createChannelSchema>>({
     resolver: zodResolver(createChannelSchema),
@@ -49,11 +49,12 @@ export const ChannelModal = () => {
     mutate(
       { name: values.name, workspaceId },
       {
-        onSuccess: (data) => {
-          // router.push(`/channel/${data}`);
+        onSuccess: (id) => {
+          //once channel created redirect to the new channel
+         router.push(`/workspace/${workspaceId}/channel/${id}`)
           handleCloseModal();
           toast.success("Channel Created!");
-          form.reset()
+          form.reset();
         },
         onError: () => {
           toast.error("Something went wrong while creating channel");
