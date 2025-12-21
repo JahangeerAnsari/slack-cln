@@ -24,7 +24,6 @@ import { useChannelStore } from "../store/use-channel-store";
 import { createChannelSchema } from "../schema";
 import { useCreateChannel } from "../api/use-create-channel";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-
 export const ChannelModal = () => {
   const router = useRouter();
   const { isOpen, onClose, type } = useChannelStore();
