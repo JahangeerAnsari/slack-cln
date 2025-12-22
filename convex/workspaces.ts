@@ -141,6 +141,7 @@ export const join = mutation({
        return workspace._id
   }
 })
+
 // update workspace
 export const update = mutation({
   args: {

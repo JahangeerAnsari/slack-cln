@@ -49,16 +49,13 @@ const WorkspaceIdPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center flex-col gap-2">
           <Loader className="size-6 animate-spin text-muted-foreground"/>
-          <span className="text-sm text-muted-foreground">
-            Workspace not found
-          </span>
         </div>
     )
   }
   if(!workspace){
     return (
         <div className="min-h-screen flex flex-1 items-center justify-center flex-col gap-2">
-          <TriangleAlert className="size-6 animate-spin text-muted-foreground"/>
+          <TriangleAlert className="size-6 text-muted-foreground"/>
           <span className="text-sm text-muted-foreground">
             Workspace not found
           </span>

@@ -52,4 +52,30 @@ export const get = query({
      return channels
     },
   
+});
+export const getChannelById = query({
+   args:{
+    id: v.id("channels")
+   },
+   handler:async (ctx,args) =>{
+    const userId = await auth.getUserId(ctx);
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    const channel = await ctx.db.get(args.id)
+       if(!channel){
+        return null;
+       }
+     const member =  await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("workspaceId", channel.workspaceId).eq("userId", userId)
+      )
+      .unique();
+    if(!member){
+      return null;
+    }
+    return channel
+
+   }
 })
