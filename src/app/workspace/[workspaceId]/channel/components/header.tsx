@@ -16,9 +16,12 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useDeleteChannel } from "@/features/channels/api/use-delete-channel";
 import { useUpdateChannel } from "@/features/channels/api/use-update-channel";
 import { updateChannelSchema } from "@/features/channels/schema";
 import { useChannelId } from "@/hooks/use-channel-id";
+import { useConfirm } from "@/hooks/use-confirmation";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, TrashIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -31,10 +34,16 @@ interface HeaderProps {
   title: string;
 }
 const Header = ({ title }: HeaderProps) => {
-  const router = useRouter()
+  const router = useRouter();
+   const [ConfirmDialog, confirm] = useConfirm(
+    "Are you Sure?",
+    "This action will deactivate your current invite code and generate a new invite code"
+  )
   const [isOpen, setIsOpen] = useState(false);
-  const channelId = useChannelId()
-  const {mutate, isPending} = useUpdateChannel()
+  const channelId = useChannelId();
+  const workspaceId = useWorkspaceId()
+  const {mutate, isPending} = useUpdateChannel();
+  const {mutate:deleteChannel, isPending:deletePending} = useDeleteChannel()
   const form = useForm<z.infer<typeof updateChannelSchema>>({
     resolver: zodResolver(updateChannelSchema),
     defaultValues: {
@@ -53,7 +62,25 @@ const Header = ({ title }: HeaderProps) => {
       }
      })
   };
+  const handleDeleteChannel = async () =>{
+    const okay =await confirm();
+    if(!okay) return;
+    deleteChannel({
+      id: channelId
+    },{
+      onSuccess:() =>{
+         router.push(`/workspace/${workspaceId}`)
+        toast.success('Channel Deleted');
+       
+      },
+      onError:() =>{
+        toast.error('Failed to delete channel')
+      }
+    })
+  }
   return (
+   <>
+   <ConfirmDialog/>
     <div className="bg-white border-b h-[49px] items-center p-4 overflow-hidden ">
       <Dialog>
         <DialogTrigger asChild>
@@ -126,7 +153,7 @@ const Header = ({ title }: HeaderProps) => {
                 </Form>
               </DialogContent>
             </Dialog>
-            <button
+            <button onClick={handleDeleteChannel} disabled={deletePending}
               className="flex items-center gap-x-2 px-5 py-4 bg-white rounded-lg cursor-pointer border
              hover:bg-gray-50 text-rose-600"
             >
@@ -137,6 +164,7 @@ const Header = ({ title }: HeaderProps) => {
         </DialogContent>
       </Dialog>
     </div>
+   </>
   );
 };
 
