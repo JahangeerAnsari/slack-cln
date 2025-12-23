@@ -73,7 +73,7 @@ export const WorkspaceHeader = ({
                 <DropdownMenuItem onClick={() => setOpenPreferenceModal(true)}>
                   Preferences
                 </DropdownMenuItem>
-              </>
+        </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
