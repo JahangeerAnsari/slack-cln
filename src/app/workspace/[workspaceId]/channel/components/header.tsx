@@ -16,18 +16,25 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useUpdateChannel } from "@/features/channels/api/use-update-channel";
 import { updateChannelSchema } from "@/features/channels/schema";
+import { useChannelId } from "@/hooks/use-channel-id";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, TrashIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 interface HeaderProps {
   title: string;
 }
 const Header = ({ title }: HeaderProps) => {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false);
+  const channelId = useChannelId()
+  const {mutate, isPending} = useUpdateChannel()
   const form = useForm<z.infer<typeof updateChannelSchema>>({
     resolver: zodResolver(updateChannelSchema),
     defaultValues: {
@@ -35,7 +42,16 @@ const Header = ({ title }: HeaderProps) => {
     },
   });
   const handleWorkspaceForm = (values: any) => {
-    console.log("values", values);
+     mutate({id:channelId, name:values.name },{
+      onSuccess:() =>{
+        toast.success('Channel update');
+        setIsOpen(false)
+      },
+      onError:() =>{
+        console.log("Failed to update channel");
+        
+      }
+     })
   };
   return (
     <div className="bg-white border-b h-[49px] items-center p-4 overflow-hidden ">
@@ -91,7 +107,7 @@ const Header = ({ title }: HeaderProps) => {
                                 field.onChange(formatted); // update RHF state
                               }}
                               value={field.value}
-                              disabled={false}
+                              disabled={isPending}
                             />
                           </FormControl>
                           <FormMessage />
