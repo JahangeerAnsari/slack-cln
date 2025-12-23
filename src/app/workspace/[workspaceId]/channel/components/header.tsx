@@ -16,9 +16,11 @@ import {
   Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useCurrentUser } from "@/features/auth/components/use-current-user";
 import { useDeleteChannel } from "@/features/channels/api/use-delete-channel";
 import { useUpdateChannel } from "@/features/channels/api/use-update-channel";
 import { updateChannelSchema } from "@/features/channels/schema";
+import { useGetCurrentMember } from "@/features/members/api/use-get-current-member";
 import { useChannelId } from "@/hooks/use-channel-id";
 import { useConfirm } from "@/hooks/use-confirmation";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -35,15 +37,19 @@ interface HeaderProps {
 }
 const Header = ({ title }: HeaderProps) => {
   const router = useRouter();
-   const [ConfirmDialog, confirm] = useConfirm(
+  const [ConfirmDialog, confirm] = useConfirm(
     "Are you Sure?",
     "This action will deactivate your current invite code and generate a new invite code"
-  )
+  );
   const [isOpen, setIsOpen] = useState(false);
   const channelId = useChannelId();
-  const workspaceId = useWorkspaceId()
-  const {mutate, isPending} = useUpdateChannel();
-  const {mutate:deleteChannel, isPending:deletePending} = useDeleteChannel()
+  const workspaceId = useWorkspaceId();
+  const { data: member} = useGetCurrentMember({
+    workspaceId,
+  });
+  const { mutate, isPending } = useUpdateChannel();
+  const { mutate: deleteChannel, isPending: deletePending } =
+    useDeleteChannel();
   const form = useForm<z.infer<typeof updateChannelSchema>>({
     resolver: zodResolver(updateChannelSchema),
     defaultValues: {
@@ -51,120 +57,136 @@ const Header = ({ title }: HeaderProps) => {
     },
   });
   const handleWorkspaceForm = (values: any) => {
-     mutate({id:channelId, name:values.name },{
-      onSuccess:() =>{
-        toast.success('Channel update');
-        setIsOpen(false)
-      },
-      onError:() =>{
-        console.log("Failed to update channel");
-        
+    mutate(
+      { id: channelId, name: values.name },
+      {
+        onSuccess: () => {
+          toast.success("Channel update");
+          setIsOpen(false);
+        },
+        onError: () => {
+          console.log("Failed to update channel");
+        },
       }
-     })
+    );
   };
-  const handleDeleteChannel = async () =>{
-    const okay =await confirm();
-    if(!okay) return;
-    deleteChannel({
-      id: channelId
-    },{
-      onSuccess:() =>{
-         router.push(`/workspace/${workspaceId}`)
-        toast.success('Channel Deleted');
-       
+  const handleDeleteChannel = async () => {
+    const okay = await confirm();
+    if (!okay) return;
+    deleteChannel(
+      {
+        id: channelId,
       },
-      onError:() =>{
-        toast.error('Failed to delete channel')
+      {
+        onSuccess: () => {
+          router.push(`/workspace/${workspaceId}`);
+          toast.success("Channel Deleted");
+        },
+        onError: () => {
+          toast.error("Failed to delete channel");
+        },
       }
-    })
-  }
+    );
+  };
+  const handleOpen = (value: boolean) => {
+    if (member?.role !== "admin") return;
+    setIsOpen(value);
+  };
   return (
-   <>
-   <ConfirmDialog/>
-    <div className="bg-white border-b h-[49px] items-center p-4 overflow-hidden ">
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="text-lg font-semibold px-2 overflow-hidden w-auto"
-          >
-            <span className="truncate"> # {title}</span>
-            <ChevronDown />
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="p-0 bg-gray-50 overflow-hidden">
-          <DialogHeader className="p-4 border-b bg-white">
-            <DialogTitle># {title}</DialogTitle>
-          </DialogHeader>
-          <div className="px-4 pb-4 flex flex-col gap-y-2">
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-              <DialogTrigger asChild>
-                <div className="px-5 py-4 bg-white rounded-lg border cursor-pointer hover">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold">Channel Name</p>
-                    <p className="text-sm text-[#1264a3] hover:underline font-semibold">
-                      Edit
-                    </p>
-                  </div>
-                </div>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader className="p-4 border-b bg-white">
-                  <DialogTitle>Rename the Channel</DialogTitle>
-                </DialogHeader>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(handleWorkspaceForm)}
-                    className="space-y-4"
-                  >
-                    <FormField
-                      name="name"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder="Channel name e.g. 'plan' 'budget'"
-                              {...field}
-                              onChange={(e) => {
-                                const formatted = e.target.value
-                                  .replace(/\s+/g, "-")
-                                  .toLowerCase();
-                                field.onChange(formatted); // update RHF state
-                              }}
-                              value={field.value}
-                              disabled={isPending}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <DialogFooter>
-                      <DialogClose asChild>
-                        <Button>Close</Button>
-                      </DialogClose>
-                      <div className="flex justify-end">
-                        <Button disabled={false}>Save</Button>
-                      </div>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-            <button onClick={handleDeleteChannel} disabled={deletePending}
-              className="flex items-center gap-x-2 px-5 py-4 bg-white rounded-lg cursor-pointer border
-             hover:bg-gray-50 text-rose-600"
+    <>
+      <ConfirmDialog />
+      <div className="bg-white border-b h-[49px] items-center p-4 overflow-hidden ">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-lg font-semibold px-2 overflow-hidden w-auto"
             >
-              <TrashIcon className="size-5" />
-              <p className="text-sm font-semibold">Delete channel</p>
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-   </>
+              <span className="truncate"> # {title}</span>
+              <ChevronDown />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="p-0 bg-gray-50 overflow-hidden">
+            <DialogHeader className="p-4 border-b bg-white">
+              <DialogTitle># {title}</DialogTitle>
+            </DialogHeader>
+            <div className="px-4 pb-4 flex flex-col gap-y-2">
+              <Dialog open={isOpen} onOpenChange={handleOpen}>
+                <DialogTrigger asChild>
+                  <div className="px-5 py-4 bg-white rounded-lg border cursor-pointer hover">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold">Channel Name</p>
+                       
+                      {member?.role === "admin" && (
+                        <p className="text-sm text-[#1264a3] hover:underline font-semibold">
+                          Edit
+                        </p>
+                      )}
+                    </div>
+                    <span className="text-sm font-semibold"># {title}</span>
+                  </div>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader className="p-4 border-b bg-white">
+                    <DialogTitle>Rename the Channel</DialogTitle>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(handleWorkspaceForm)}
+                      className="space-y-4"
+                    >
+                      <FormField
+                        name="name"
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                placeholder="Channel name e.g. 'plan' 'budget'"
+                                {...field}
+                                onChange={(e) => {
+                                  const formatted = e.target.value
+                                    .replace(/\s+/g, "-")
+                                    .toLowerCase();
+                                  field.onChange(formatted); // update RHF state
+                                }}
+                                value={field.value}
+                                disabled={isPending}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button>Close</Button>
+                        </DialogClose>
+                        <div className="flex justify-end">
+                          <Button disabled={false}>Save</Button>
+                        </div>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+              {member?.role === "admin" && (
+                <button
+                  onClick={handleDeleteChannel}
+                  disabled={deletePending}
+                  className="flex items-center gap-x-2 px-5 py-4 bg-white rounded-lg cursor-pointer border
+             hover:bg-gray-50 text-rose-600"
+                >
+                  <TrashIcon className="size-5" />
+                  <p className="text-sm font-semibold">Delete channel</p>
+                </button>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
   );
 };
 
