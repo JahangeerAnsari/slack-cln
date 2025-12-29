@@ -13,6 +13,8 @@ import { ImageIcon, Smile } from "lucide-react";
 import { IoSend } from "react-icons/io5";
 import { Hint } from "./hint";
 import Keyboard from "quill/modules/keyboard";
+import { EmojiPopover } from "./ui/emoji-popover";
+
 Quill.register("modules/keyboard", Keyboard);
 interface EditorValue {
   file: File | null;
@@ -114,7 +116,10 @@ const Editor = ({
     }
   };
   const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
-
+const onSelectEmoji = (emoji:any) =>{
+ const quill = quillRef.current;
+ quill?.insertText(quill?.getSelection()?.index || 0, emoji.native)
+}
   return (
     <div
       className="flex flex-col border border-slate-200 rounded-md overflow-hidden
@@ -132,16 +137,15 @@ const Editor = ({
             <PiTextAa className="size-5" />
           </Button>
         </Hint>
-        <Hint label="Emoji">
+        <EmojiPopover onEmojiSelect={onSelectEmoji}>
           <Button
             disabled={disabled}
             size="iconSm"
             variant="ghost"
-            onClick={() => {}}
           >
             <Smile className="size-5" />
           </Button>
-        </Hint>
+        </EmojiPopover>
 
         {variant === "create" && (
           <Hint label="Upload Files">
