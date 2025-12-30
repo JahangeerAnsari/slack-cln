@@ -25,10 +25,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { GoAlert } from "react-icons/go";
 interface SignUpCardProps {
   setAuthState: (authState: AuthTypes) => void;
 }
 export const SingUpCard = ({ setAuthState }: SignUpCardProps) => {
+   const { signIn } = useAuthActions();
+  const [isPending,setIsPending] = useState(false);
+    const[error, setError] = useState("")
   const form = useForm<z.infer<typeof signUpFormSchema>>({
     defaultValues: {
       name: "",
@@ -38,7 +44,17 @@ export const SingUpCard = ({ setAuthState }: SignUpCardProps) => {
     resolver:zodResolver(signUpFormSchema)
   });
   const handleSignUpFormSubmit = (values: z.infer<typeof signUpFormSchema>) => {
-    console.log("values====>", values);
+     setIsPending(true);
+   signIn("password",{
+      name:values.name,
+      email:values.email,
+      password:values.password,
+      flow:"signUp"
+    }).catch(() =>{
+      setError("Something went wrong")
+    }).finally(()=>{
+ setIsPending(false)
+    })
   };
   return (
     <Card className="w-full max-w-sm">
@@ -53,6 +69,12 @@ export const SingUpCard = ({ setAuthState }: SignUpCardProps) => {
           </Button>
         </CardAction>
       </CardHeader>
+      {!!error && (
+              <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm">
+                 <GoAlert className="size-5"/>
+                 <p>{error}</p>
+              </div>
+            )}
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSignUpFormSubmit)}>
@@ -65,7 +87,7 @@ export const SingUpCard = ({ setAuthState }: SignUpCardProps) => {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="enter name" {...field} />
+                        <Input disabled={isPending} placeholder="enter name" {...field} />
                       </FormControl>
                       <FormMessage  />
                     </FormItem>
@@ -80,7 +102,7 @@ export const SingUpCard = ({ setAuthState }: SignUpCardProps) => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="enter email" {...field} />
+                        <Input  disabled={isPending} placeholder="enter email" {...field} />
                       </FormControl>
                       <FormMessage  />
                     </FormItem>
@@ -95,7 +117,7 @@ export const SingUpCard = ({ setAuthState }: SignUpCardProps) => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="enter password" {...field} />
+                        <Input  disabled={isPending} type="password" placeholder="enter password" {...field} />
                       </FormControl>
                       <FormMessage  />
                     </FormItem>
@@ -103,7 +125,7 @@ export const SingUpCard = ({ setAuthState }: SignUpCardProps) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full"  disabled={isPending}>
                   Register
                 </Button>
               </div>
@@ -112,11 +134,11 @@ export const SingUpCard = ({ setAuthState }: SignUpCardProps) => {
         </Form>
       </CardContent>
       <CardFooter className="flex-col gap-2">
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full"  disabled={isPending}>
           <FcGoogle />
           Login with Google
         </Button>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full"  disabled={isPending}>
           <BsGithub />
           Login with Github
         </Button>
