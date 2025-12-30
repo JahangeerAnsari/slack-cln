@@ -12,11 +12,8 @@ import { Button } from "./ui/button";
 import { ImageIcon, Smile, XIcon } from "lucide-react";
 import { IoSend } from "react-icons/io5";
 import { Hint } from "./hint";
-import Keyboard from "quill/modules/keyboard";
 import { EmojiPopover } from "./ui/emoji-popover";
 import Image from "next/image";
-
-Quill.register("modules/keyboard", Keyboard);
 interface EditorValue {
   file: File | null;
   body: string;
@@ -72,20 +69,13 @@ const Editor = ({
 
           [{ list: "ordered" }, { list: "bullet" }],
         ],
-        Keyboard: {
-          bindings: {
-            enter: {
-              key: "Enter",
-              shiftKey: true,
-              handler: () => {
-                quill.insertText(quill.getSelection()?.index || 0, "\n");
-              },
-            },
-          },
-        },
       },
     };
     const quill = new Quill(editorContainer, options);
+    // Add keyboard binding after Quill is instantiated
+    quill.keyboard.addBinding({ key: 'Enter', shiftKey: true }, () => {
+      quill.insertText(quill.getSelection()?.index || 0, "\n");
+    });
     quillRef.current = quill;
     quillRef.current.focus();
     if (innerRef) {
@@ -119,10 +109,10 @@ const Editor = ({
     }
   };
   const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
-  const onSelectEmoji = (emoji: any) => {
-    const quill = quillRef.current;
-    quill?.insertText(quill?.getSelection()?.index || 0, emoji.native)
-  }
+const onSelectEmoji = (emoji:any) =>{ 
+ const quill = quillRef.current;
+ quill?.insertText(quill?.getSelection()?.index || 0, emoji.native)
+}
   return (
     <div
       className="flex flex-col border border-slate-200 rounded-md overflow-hidden
