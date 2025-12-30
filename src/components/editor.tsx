@@ -39,6 +39,7 @@ const Editor = ({
   onCancel,
 }: EditorProps) => {
   const [text, setText] = useState("");
+  const [image, setImage] =useState<File | null>(null);
   const [isTogglerVisible, setIsTogglerVisible] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   //we dont want to add dependency value to the useEffect for that we can use
@@ -47,6 +48,7 @@ const Editor = ({
   const quillRef = useRef<Quill | null>(null);
   const defaultValueRef = useRef(defaultValue);
   const disabledRef = useRef(disabled);
+  const imageElementRef  = useRef<HTMLInputElement>(null)
   useLayoutEffect(() => {
     submitRef.current = onSubmit;
     placeholderRef.current = placeholder;
@@ -125,6 +127,7 @@ const onSelectEmoji = (emoji:any) =>{
       className="flex flex-col border border-slate-200 rounded-md overflow-hidden
          focus-within:border-slate-300 focus-within:shadow-sm transition bg-white "
     >
+      <input type="file" className="hidden" accept="image/*" ref={imageElementRef} onChange={(event) =>setImage(event.target.files![0])}/>
       <div ref={editorRef} className="ql-custom" />
       <div className="flex px-2 pb-2 z-[5px] hover:cursor-pointer">
         <Hint label={isTogglerVisible ? "show formatting" : "hide formatting"}>
@@ -150,10 +153,10 @@ const onSelectEmoji = (emoji:any) =>{
         {variant === "create" && (
           <Hint label="Upload Files">
             <Button
-              disabled={disabled || isEmpty}
+              disabled={disabled}
               size="iconSm"
               variant="ghost"
-              onClick={() => {}}
+              onClick={() => imageElementRef.current?.click()}
             >
               <ImageIcon className="size-5" />
             </Button>
