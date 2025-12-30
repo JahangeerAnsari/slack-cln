@@ -9,11 +9,12 @@ import {
   useState,
 } from "react";
 import { Button } from "./ui/button";
-import { ImageIcon, Smile } from "lucide-react";
+import { ImageIcon, Smile, XIcon } from "lucide-react";
 import { IoSend } from "react-icons/io5";
 import { Hint } from "./hint";
 import Keyboard from "quill/modules/keyboard";
 import { EmojiPopover } from "./ui/emoji-popover";
+import Image from "next/image";
 
 Quill.register("modules/keyboard", Keyboard);
 interface EditorValue {
@@ -39,7 +40,7 @@ const Editor = ({
   onCancel,
 }: EditorProps) => {
   const [text, setText] = useState("");
-  const [image, setImage] =useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
   const [isTogglerVisible, setIsTogglerVisible] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   //we dont want to add dependency value to the useEffect for that we can use
@@ -48,7 +49,7 @@ const Editor = ({
   const quillRef = useRef<Quill | null>(null);
   const defaultValueRef = useRef(defaultValue);
   const disabledRef = useRef(disabled);
-  const imageElementRef  = useRef<HTMLInputElement>(null)
+  const imageElementRef = useRef<HTMLInputElement>(null)
   useLayoutEffect(() => {
     submitRef.current = onSubmit;
     placeholderRef.current = placeholder;
@@ -118,17 +119,39 @@ const Editor = ({
     }
   };
   const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
-const onSelectEmoji = (emoji:any) =>{
- const quill = quillRef.current;
- quill?.insertText(quill?.getSelection()?.index || 0, emoji.native)
-}
+  const onSelectEmoji = (emoji: any) => {
+    const quill = quillRef.current;
+    quill?.insertText(quill?.getSelection()?.index || 0, emoji.native)
+  }
   return (
     <div
       className="flex flex-col border border-slate-200 rounded-md overflow-hidden
          focus-within:border-slate-300 focus-within:shadow-sm transition bg-white "
     >
-      <input type="file" className="hidden" accept="image/*" ref={imageElementRef} onChange={(event) =>setImage(event.target.files![0])}/>
+      <input type="file" className="hidden" accept="image/*" ref={imageElementRef} onChange={(event) => setImage(event.target.files![0])} />
       <div ref={editorRef} className="ql-custom" />
+      {!!image && (<div className="p-2">
+         <div className="relative size-[62px] flex items-center justify-center group/image">
+            <Hint label="Remove image">
+              <button onClick={() => {
+              setImage(null)
+              imageElementRef.current!.value = ""
+            }}
+             className="hidden group-hover/image:flex rounded-full bg-black/70 hover:bg-black absolute -top-2.5 -right-2.5 text-white size-6
+             z-[4] border-2 border-white items-center justify-center
+             "
+            >
+            <XIcon className="size-3.5"/>
+            </button>
+            </Hint>
+            <Image src={URL.createObjectURL(image)}
+             alt="Upload"
+             fill
+             className="rounded-XL overflow-hidden border object-cover"
+            />
+         </div>
+        
+      </div>)}
       <div className="flex px-2 pb-2 z-[5px] hover:cursor-pointer">
         <Hint label={isTogglerVisible ? "show formatting" : "hide formatting"}>
           <Button

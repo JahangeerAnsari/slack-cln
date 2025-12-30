@@ -1,0 +1,21 @@
+{
+    "files.autoSave": "afterDelay",
+    "editor.codeActionsOnSave": {},
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": true,
+        "strings": true
+    },
+    "editor.suggestOnTriggerCharacters": true,
+    "editor.parameterHints.enabled": true,
+    "editor.language.colorizedBracketPairs": [],
+    "workbench.settings.showAISearchToggle": false,
+    "editor.smartSelect.selectLeadingAndTrailingWhitespace": false,
+    "editor.fontSize": 15,
+    "github.copilot.enable": {
+        "*": false,
+        "plaintext": false, 
+        "markdown": false,
+        "scminput": false
+    }
+}
