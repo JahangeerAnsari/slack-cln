@@ -69,7 +69,32 @@ const Editor = ({
 
           [{ list: "ordered" }, { list: "bullet" }],
         ],
+        Keyboard:{
+          bindings:{
+            enter:{
+              key:"Enter",
+              handler:() =>{
+                const text =quill.getText();
+                const addedImage = imageElementRef.current?.files?.[0] || null;
+                const isEmpty =!addedImage && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+                if(isEmpty) return;
+                const body = JSON.stringify(quill.getContents());
+                submitRef.current({
+                  body, file:addedImage
+                })
+              }
+            },
+            shift_enter:{
+              key:"Enter",
+              shiftkey:true,
+              handler:() =>{
+                quill.insertText(quill.getSelection()?.index || 0,"\n");
+              }
+            }
+          }
+        }
       },
+    
     };
     const quill = new Quill(editorContainer, options);
     // Add keyboard binding after Quill is instantiated
@@ -176,22 +201,45 @@ const onSelectEmoji = (emoji:any) =>{
           </Hint>
         )}
 
-        {variant === "update" ? (
+        {variant === "update" && (
           <div className="ml-auto flex items-center gap-x-2">
-            <Button>Cancel</Button>
-            <Button className="ml-auto bg-[#007a5a] hover:bg-[#007a5a]/80 text-white">
-              Save
-            </Button>
-          </div>
-        ) : (
-          <Button
+            <Button variant="outline" size="default" onClick={onCancel}>Cancel</Button>
+            <Button
             disabled={disabled || isEmpty}
-            size="iconSm"
+            size="default"
+            onClick={() =>{
+              onSubmit({
+                body:JSON.stringify(quillRef.current?.getContents()),
+                file:image
+              })
+            }}
             className="ml-auto bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
           >
+            Send
             <IoSend />
           </Button>
-        )}
+          </div>
+        )
+       }
+       {variant === "create" && (
+          <div className="ml-auto flex items-center gap-x-2">
+            <Button
+            disabled={disabled || isEmpty}
+            size="default"
+            className="ml-auto bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
+            onClick={() =>{
+              onSubmit({
+                body:JSON.stringify(quillRef.current?.getContents()),
+                file:image
+              })
+            }}
+          >
+            Send
+            <IoSend />
+          </Button>
+          </div>
+        )
+       }
       </div>
       {variant === "create" && (
         <div className="ml-auto items-center">
