@@ -36,7 +36,8 @@ export const create = mutation({
         updatedAt:Date.now(),
         workspaceId:args.workspaceId,
         channelId:args.channelId,
-        parentMessageId:args.parentMessageId
+        parentMessageId:args.parentMessageId,
+        image:args.image
       });
       return messageId;
 
