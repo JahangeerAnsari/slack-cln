@@ -97,10 +97,7 @@ const Editor = ({
     
     };
     const quill = new Quill(editorContainer, options);
-    // Add keyboard binding after Quill is instantiated
-    quill.keyboard.addBinding({ key: 'Enter', shiftKey: true }, () => {
-      quill.insertText(quill.getSelection()?.index || 0, "\n");
-    });
+    
     quillRef.current = quill;
     quillRef.current.focus();
     if (innerRef) {
