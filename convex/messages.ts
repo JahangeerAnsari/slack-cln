@@ -2,6 +2,17 @@ import { v } from "convex/values";
 import { mutation, QueryCtx } from "./_generated/server";
 import { auth } from "./auth";
 import { Id } from "./_generated/dataModel";
+const populateReactions = async (ctx:QueryCtx,messageId:Id<"messages">) =>{
+  return await ctx.db.query
+  ("reactions")
+  .withIndex("by_message_id",(q) => q.eq("messageId",messageId)).collect()
+}
+const populateUser  = async(ctx:QueryCtx, userId:Id<"users">)=>{
+return await ctx.db.get(userId)
+}
+const populateMembers = async(ctx:QueryCtx, memberId:Id<"members">) =>{
+  return await ctx.db.get(memberId)
+}
 const getMember = async(
     ctx:QueryCtx,
     workspaceId:Id<"workspaces">,
@@ -18,6 +29,7 @@ export const create = mutation({
         image:v.optional(v.id("_storage")),
         workspaceId:v.id("workspaces"),
         channelId:v.optional(v.id("channels")),
+        conversationId:v.optional(v.id("conversations")),
         parentMessageId:v.optional(v.id("messages"))
     },
     handler:async(ctx,args)=>{
@@ -29,6 +41,11 @@ export const create = mutation({
       if(!member){
         throw new Error("Unauthorized")
       }
+      let _conversationId = args.conversationId
+      //let reply one to one conversations
+      if(!args.conversationId && !args.channelId  && args.parentMessageId){
+        const parentMessage = await ctx.db.get(args.parentMessageId)
+      }
       //let add data into the messages table
       const messageId = await ctx.db.insert("messages",{
         memberId:member._id,
@@ -37,6 +54,7 @@ export const create = mutation({
         workspaceId:args.workspaceId,
         channelId:args.channelId,
         parentMessageId:args.parentMessageId,
+        conversationId:_conversationId,
         image:args.image
       });
       return messageId;

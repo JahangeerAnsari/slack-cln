@@ -23,6 +23,7 @@ type CreateMessageValues ={
   workspaceId:Id<"workspaces">,
   body:string;
   image: Id<"_storage"> | undefined
+  
 
 }
 const ChatInput = ({placeholder}:ChatInputProps) => {
@@ -43,7 +44,8 @@ const ChatInput = ({placeholder}:ChatInputProps) => {
           channelId,
           workspaceId,
           body,
-          image:undefined
+          image:undefined,
+          
         }
         if(file){
           const url = await uploadUrl({},{throwError:true});

@@ -4,7 +4,9 @@ import { api } from "../../../../convex/_generated/api";
 import { useCallback, useMemo, useState } from "react";
 
 type RequestType = { body: string, workspaceId: Id<"workspaces">, image?: Id<"_storage">,
-     channelId?: Id<"channels"> ,parentMessageId?:Id<"messages">};
+     channelId?: Id<"channels"> ,parentMessageId?:Id<"messages">
+      ,conversationId?:Id<"conversations">
+    };
 type ResponseType = Id<"messages"> | null;
 type Options = {
     onSuccess?: (data: ResponseType) => void;
