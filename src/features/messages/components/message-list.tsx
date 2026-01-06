@@ -1,6 +1,6 @@
 import { Doc } from "../../../../convex/_generated/dataModel";
 import { GetMessageReturnType } from "../api/use-get-messages";
-import {format, isToday, isYesterday} from "date-fns";
+import {differenceInMinutes, format, isToday, isYesterday} from "date-fns";
 import { Message } from "./message";
 
 interface MessageListProps {
@@ -15,7 +15,7 @@ interface MessageListProps {
     variant?: "channel" | "thread" | "conversation"
 }
 const MessageList = ({ canLoadMore, data, isLoadingMore, loadMore, channelCreationTime, channelName, memberImage, memberName, variant }: MessageListProps) => {
-    
+    const TIME_THRESHOLD =5;
     const groupMessages = data?.reduce((groups,message) =>{
         const date = new Date(message._creationTime);
         const datekey = format(date,"yyyy-MM-dd");
@@ -48,13 +48,16 @@ const MessageList = ({ canLoadMore, data, isLoadingMore, loadMore, channelCreati
                     </span>
                 </div>
                {messages?.map((message,index) =>{
+                const prevMessage = messages[index -1];
+                const isCompact = prevMessage && prevMessage.user?._id === message.user._id &&
+                differenceInMinutes(new Date(message._creationTime),new Date(prevMessage._creationTime))< TIME_THRESHOLD;
                 return (
                     <Message
                       key={message._id}
                       id={message._id}
                       memberId = {message.memberId}
-                      autherImage ={message.user.image}
-                      autherName ={message.user.name}
+                      authorImage ={message.user.image}
+                      authorName ={message.user.name}
                       isAuthor={false}
                       reactions={message.reactions}
                       body={message.body}
@@ -63,7 +66,7 @@ const MessageList = ({ canLoadMore, data, isLoadingMore, loadMore, channelCreati
                       createdAt={message._creationTime}
                       isEditing ={false}
                       setIsEditing ={() => {}}
-                      isCompact={false}
+                      isCompact={isCompact}
                       hideThreadButton={false}
                       threadCount={message.threadCount}
                       threadImage={message.threadImage}

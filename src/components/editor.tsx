@@ -1,3 +1,4 @@
+"use client";
 import Quill, { Delta, Op, type QuillOptions } from "quill";
 import "quill/dist/quill.snow.css";
 import { PiTextAa } from "react-icons/pi";
@@ -14,6 +15,10 @@ import { IoSend } from "react-icons/io5";
 import { Hint } from "./hint";
 import { EmojiPopover } from "./ui/emoji-popover";
 import Image from "next/image";
+import Keyboard from "quill/modules/keyboard";
+import "quill/dist/quill.snow.css";
+
+Quill.register("modules/keyboard", Keyboard);
 interface EditorValue {
   file: File | null;
   body: string;
