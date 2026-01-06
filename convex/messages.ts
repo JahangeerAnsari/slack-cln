@@ -171,7 +171,7 @@ export const create = mutation({
     if (!member) {
       throw new Error("Unauthorized")
     }
-    let _conversationId = args.conversationId
+    const _conversationId = args?.conversationId
     //let reply one to one conversations
     if (!args.conversationId && !args.channelId && args.parentMessageId) {
       const parentMessage = await ctx.db.get(args.parentMessageId)

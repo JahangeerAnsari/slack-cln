@@ -5,6 +5,7 @@ import { Id,Doc } from "../../../../convex/_generated/dataModel"
 import { format, isToday, isYesterday } from "date-fns";
 import { Hint } from "@/components/hint";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Thumbnail from "./thumb-nail";
 const Renderer = dynamic(() => import("@/features/messages/components/render-message"),{ssr:false})
 
 interface MessageProps{
@@ -40,7 +41,8 @@ export const Message = (
         
     }
     :MessageProps) =>{
-const avatarFallback = authorImage?.charAt(0).toUpperCase();
+      
+const avatarFallback = authorName?.charAt(0).toUpperCase();
         const formateFullTime = (date :Date) =>{
             return `${isToday(date) ? "Today": isYesterday(date) ? "Yesterday": format(date,"MMM,d,yyyy")} at ${format(date,"h:mm:ss a")}`
         }
@@ -55,6 +57,7 @@ const avatarFallback = authorImage?.charAt(0).toUpperCase();
                </Hint>
             </div>
             <Renderer value={body}/>
+            <Thumbnail url={image}/>
         </div>
     )
         }
@@ -87,6 +90,7 @@ const avatarFallback = authorImage?.charAt(0).toUpperCase();
                   </div>
                   <div className="flex flex-col w-full">
                     <Renderer value={body}/>
+                    <Thumbnail url={image}/>
                   {updatedAt ? (
                     <span className="text-xs text-muted-foreground">(edited)</span>
                   ):null}

@@ -1,7 +1,8 @@
-import { Doc } from "../../../../convex/_generated/dataModel";
+
 import { GetMessageReturnType } from "../api/use-get-messages";
 import {differenceInMinutes, format, isToday, isYesterday} from "date-fns";
 import { Message } from "./message";
+import ChannelHero from "./channel-hero";
 
 interface MessageListProps {
     channelName?: string;
@@ -61,7 +62,7 @@ const MessageList = ({ canLoadMore, data, isLoadingMore, loadMore, channelCreati
                       isAuthor={false}
                       reactions={message.reactions}
                       body={message.body}
-                      image={message.body}
+                      image={message.image}
                       updatedAt={message.updatedAt}
                       createdAt={message._creationTime}
                       isEditing ={false}
@@ -76,6 +77,11 @@ const MessageList = ({ canLoadMore, data, isLoadingMore, loadMore, channelCreati
                })}
             </div>
          ))}
+         {
+            variant ==="channel" && channelName && channelCreationTime && (
+                <ChannelHero name={channelName} creationTime={channelCreationTime}/>
+            )
+         }
         </div>
     )
 }
