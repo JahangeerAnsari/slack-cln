@@ -9,6 +9,8 @@ import { useUpdateMessage } from "../api/use-update-message";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useDeleteMessage } from "../api/use-delete-message";
+import { useToggleReaction } from "@/features/reactions/api/use-toggle-reaction";
+import Reactions from "@/features/reactions/components/reactions";
 const Renderer = dynamic(
   () => import("@/features/messages/components/render-message"),
   { ssr: false }
@@ -60,7 +62,9 @@ export const Message = ({
 }: MessageProps) => {
   const { mutate: updateMessage, isPending: isUpdateMessagePending } =
     useUpdateMessage();
-    const {mutate:deleteMessage,isPending:isMessageDeletePending} = useDeleteMessage()
+  const { mutate: deleteMessage, isPending: isMessageDeletePending } =
+    useDeleteMessage();
+  const { mutate: reaction, isPending: isTogglePending } = useToggleReaction();
   const avatarFallback = authorName?.charAt(0).toUpperCase();
   const formateFullTime = (date: Date) => {
     return `${isToday(date) ? "Today" : isYesterday(date) ? "Yesterday" : format(date, "MMM,d,yyyy")} at ${format(date, "h:mm:ss a")}`;
@@ -79,24 +83,39 @@ export const Message = ({
       }
     );
   };
-  const handleDeleteMessage = () =>{
-    deleteMessage({id},{
-      onSuccess:() =>{
-        toast.success("Message deleted")
-      },
-      onError:() =>{
-        toast.error("Failed to delete message")
+  const handleDeleteMessage = () => {
+    deleteMessage(
+      { id },
+      {
+        onSuccess: () => {
+          toast.success("Message deleted");
+        },
+        onError: () => {
+          toast.error("Failed to delete message");
+        },
       }
-    })
-  }
+    );
+  };
+  const handleReactions = (emoji: string) => {
+    console.log("emoji handle func====>", emoji);
+
+    reaction(
+      { id: id, value: emoji },
+      {
+        onError: () => {
+          toast.error("Failed to add react");
+        },
+      }
+    );
+  };
   if (isCompact) {
     return (
       <div
         className={cn(
           "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
           isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]",
-          isMessageDeletePending && "bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200"
-     
+          isMessageDeletePending &&
+            "bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200"
         )}
       >
         <div className="flex items-start gap-2">
@@ -110,33 +129,34 @@ export const Message = ({
             </button>
           </Hint>
 
-            {isEditing  ?  (
-              <div className="h-full w-full">
+          {isEditing ? (
+            <div className="h-full w-full">
               <Editor
-              onSubmit={handleUpdateMessage}
-              disabled={isUpdateMessagePending}
-              variant="update"
-              defaultValue={JSON.parse(body)}
-              onCancel={() => setIsEditing(null)}
-            />
+                onSubmit={handleUpdateMessage}
+                disabled={isUpdateMessagePending}
+                variant="update"
+                defaultValue={JSON.parse(body)}
+                onCancel={() => setIsEditing(null)}
+              />
             </div>
-            ) : (
-              <div className="flex flex-col w-full">
-            <Renderer value={body} />
-            <Thumbnail url={image} />
-            {updatedAt ? (
-              <span className="text-xs text-muted-foreground">(edited)</span>
-            ) : null}
-          </div>
-            )}
+          ) : (
+            <div className="flex flex-col w-full">
+              <Renderer value={body} />
+              <Thumbnail url={image} />
+              {updatedAt ? (
+                <span className="text-xs text-muted-foreground">(edited)</span>
+              ) : null}
+              <Reactions data={reactions} onChange={handleReactions} />
+            </div>
+          )}
           {!isEditing && (
             <Toolbar
               isAuthor={isAuthor}
               isPending={false}
               handleEdit={() => setIsEditing(id)}
               handleThread={() => {}}
-              handleReaction={() => {}}
-              handleDelete={() =>handleDeleteMessage}
+              handleReaction={handleReactions}
+              handleDelete={() => handleDeleteMessage}
               hideThreadButton={hideThreadButton}
             />
           )}
@@ -150,8 +170,8 @@ export const Message = ({
       className={cn(
         "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
         isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]",
-        isMessageDeletePending && "bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200"
-     
+        isMessageDeletePending &&
+          "bg-rose-500/50 transform transition-all scale-y-0 origin-bottom duration-200"
       )}
     >
       <div className="flex items-start gap-2">
@@ -195,6 +215,7 @@ export const Message = ({
               {updatedAt ? (
                 <span className="text-xs text-muted-foreground">(edited)</span>
               ) : null}
+              <Reactions data={reactions} onChange={handleReactions} />
             </div>
           </div>
         )}
@@ -205,8 +226,8 @@ export const Message = ({
           isPending={false}
           handleEdit={() => setIsEditing(id)}
           handleThread={() => {}}
-          handleReaction={() => {}}
-          handleDelete={() =>handleDeleteMessage(id)}
+          handleReaction={handleReactions}
+          handleDelete={() => handleDeleteMessage}
           hideThreadButton={hideThreadButton}
         />
       )}
