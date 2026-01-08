@@ -32,7 +32,7 @@ import { TooltipProvider } from "./tooltip";
 interface EmojiPopoverProps {
   children: React.ReactNode;
   hint?: string;
-  onEmojiSelect: (emoji: Emoji) => void;
+  onEmojiSelect: (emoji: string) => void;
 }
 export const EmojiPopover = ({
   children,

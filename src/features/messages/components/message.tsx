@@ -1,11 +1,11 @@
-
-
 import dynamic from "next/dynamic";
 import { Id,Doc } from "../../../../convex/_generated/dataModel"
 import { format, isToday, isYesterday } from "date-fns";
 import { Hint } from "@/components/hint";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Thumbnail from "./thumb-nail";
+import Toolbar from "./toolbar";
+import { useUpdateMessage } from "../api/use-update-message";
 const Renderer = dynamic(() => import("@/features/messages/components/render-message"),{ssr:false})
 
 interface MessageProps{
@@ -35,13 +35,9 @@ interface MessageProps{
 }
 export const Message = (
     {id,body,createdAt,image,isAuthor,isEditing,memberId,reactions,setIsEditing,
-
         updatedAt,authorImage,authorName="Member",hideThreadButton,isCompact,threadCount,
-        threadImage,threadTimestamp
-        
-    }
-    :MessageProps) =>{
-      
+        threadImage,threadTimestamp   } :MessageProps) =>{
+      const {mutate:updateMessage,isPending:isUpdateMessagePending} = useUpdateMessage()
 const avatarFallback = authorName?.charAt(0).toUpperCase();
         const formateFullTime = (date :Date) =>{
             return `${isToday(date) ? "Today": isYesterday(date) ? "Yesterday": format(date,"MMM,d,yyyy")} at ${format(date,"h:mm:ss a")}`
@@ -58,6 +54,17 @@ const avatarFallback = authorName?.charAt(0).toUpperCase();
             </div>
             <Renderer value={body}/>
             <Thumbnail url={image}/>
+             {!isEditing && (
+              <Toolbar
+               isAuthor={isAuthor}
+               isPending={false}
+               handleEdit={() =>setIsEditing(id)}
+               handleThread={() =>{}}
+               handleReaction={() =>{}}
+               handleDelete={() =>{}}
+               hideThreadButton={hideThreadButton}
+              />
+            )}
         </div>
     )
         }
@@ -97,6 +104,17 @@ const avatarFallback = authorName?.charAt(0).toUpperCase();
                   </div>
              </div>
             </div>
+            {!isEditing && (
+              <Toolbar
+               isAuthor={isAuthor}
+               isPending={false}
+               handleEdit={() =>setIsEditing(id)}
+               handleThread={() =>{}}
+               handleReaction={() =>{}}
+               handleDelete={() =>{}}
+               hideThreadButton={hideThreadButton}
+              />
+            )}
         </div>
     )
    
