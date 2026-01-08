@@ -6,7 +6,7 @@ import { MessageSquareCodeIcon, MessageSquareTextIcon, Pencil, Smile, Trash } fr
 interface ToolbarProps{
 isAuthor:boolean;
 isPending:boolean;
-handleEdit:(value:string) =>void;
+handleEdit:() =>void;
 handleThread:() =>void;
 handleReaction:(value:string) =>void;
 handleDelete:()=>void;
@@ -24,16 +24,16 @@ const Toolbar = ({handleDelete,handleEdit,handleReaction,handleThread
             </Button>
             </EmojiPopover>
             {!hideThreadButton && (
-                <Button variant="ghost" size="iconSm" disabled={isPending}>
+                <Button onClick={handleThread} variant="ghost" size="iconSm" disabled={isPending}>
              <MessageSquareTextIcon className="size-4"/>
             </Button>
             )}
              {isAuthor && (
                 <>
-                <Button variant="ghost" size="iconSm" disabled={isPending}>
+                <Button onClick={handleEdit} variant="ghost" size="iconSm" disabled={isPending}>
              <Pencil className="size-4"/>
             </Button>
-            <Button variant="ghost" size="iconSm" disabled={isPending}>
+            <Button onClick={handleDelete} variant="ghost" size="iconSm" disabled={isPending}>
              <Trash className="size-4"/>
             </Button>
                 </>

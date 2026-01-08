@@ -28,7 +28,7 @@ interface EditorProps {
   onSubmit: ({ file, body }: EditorValue) => void;
   onCancel?: () => void;
   disabled?: boolean;
-  placeholder: string;
+  placeholder?: string;
   defaultValue?: Delta | Op[];
   innerRef?: MutableRefObject<Quill | null>;
 }
