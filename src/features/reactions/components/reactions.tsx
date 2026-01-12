@@ -2,6 +2,8 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { Doc, Id } from "../../../../convex/_generated/dataModel";
 import { useGetCurrentMember } from "@/features/members/api/use-get-current-member";
 import { cn } from "@/lib/utils";
+import { EmojiPopover } from "@/components/ui/emoji-popover";
+import { BsEmojiDizzy } from "react-icons/bs";
 
 interface ReactionsProps {
   data: Array<
@@ -38,6 +40,13 @@ const Reactions = ({ data, onChange }: ReactionsProps) => {
           </span>
         </button>
       ))}
+      <EmojiPopover hint="Add Emoji" onEmojiSelect={(emoji) => onChange(emoji.native)}>
+       <button className="h-6 px-3 rounded-full bg-slate-200/70 border border-transparent hover:border-slate-500 text-slate-700 flex items-center gap-x-1">
+        <BsEmojiDizzy/>
+       </button>
+
+       
+      </EmojiPopover>
     </div>
   );
 };
