@@ -84,6 +84,8 @@ export const Message = ({
     );
   };
   const handleDeleteMessage = () => {
+    console.log("delete msf");
+    
     deleteMessage(
       { id },
       {
@@ -156,7 +158,7 @@ export const Message = ({
               handleEdit={() => setIsEditing(id)}
               handleThread={() => {}}
               handleReaction={handleReactions}
-              handleDelete={() => handleDeleteMessage}
+              handleDelete={ handleDeleteMessage}
               hideThreadButton={hideThreadButton}
             />
           )}
@@ -227,7 +229,7 @@ export const Message = ({
           handleEdit={() => setIsEditing(id)}
           handleThread={() => {}}
           handleReaction={handleReactions}
-          handleDelete={() => handleDeleteMessage}
+          handleDelete={handleDeleteMessage}
           hideThreadButton={hideThreadButton}
         />
       )}
