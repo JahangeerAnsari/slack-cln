@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useDeleteMessage } from "../api/use-delete-message";
 import { useToggleReaction } from "@/features/reactions/api/use-toggle-reaction";
 import Reactions from "@/features/reactions/components/reactions";
+import { usePanel } from "@/hooks/use-panel";
 const Renderer = dynamic(
   () => import("@/features/messages/components/render-message"),
   { ssr: false }
@@ -60,6 +61,7 @@ export const Message = ({
   threadImage,
   threadTimestamp,
 }: MessageProps) => {
+  const {onClose,parentMessageId,onOpenMessage} = usePanel()
   const { mutate: updateMessage, isPending: isUpdateMessagePending } =
     useUpdateMessage();
   const { mutate: deleteMessage, isPending: isMessageDeletePending } =
@@ -91,6 +93,10 @@ export const Message = ({
       {
         onSuccess: () => {
           toast.success("Message deleted");
+          //if parentMessageId is === to delete id
+          if(parentMessageId === id){
+             onClose()
+          }
         },
         onError: () => {
           toast.error("Failed to delete message");
@@ -156,7 +162,7 @@ export const Message = ({
               isAuthor={isAuthor}
               isPending={false}
               handleEdit={() => setIsEditing(id)}
-              handleThread={() => {}}
+              handleThread={() =>onOpenMessage(id)}
               handleReaction={handleReactions}
               handleDelete={ handleDeleteMessage}
               hideThreadButton={hideThreadButton}
@@ -227,7 +233,7 @@ export const Message = ({
           isAuthor={isAuthor}
           isPending={false}
           handleEdit={() => setIsEditing(id)}
-          handleThread={() => {}}
+           handleThread={() =>onOpenMessage(id)}
           handleReaction={handleReactions}
           handleDelete={handleDeleteMessage}
           hideThreadButton={hideThreadButton}
